@@ -5,9 +5,9 @@ import { Text, View } from 'react-native';
 export default function Index() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      router.replace('/(tabs)/search');
-      return () => clearTimeout(timeoutId);
+      router.replace('/(drawer)/(tabs)/search');
     }, 1000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
