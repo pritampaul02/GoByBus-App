@@ -9,6 +9,8 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(drawer)" />
         <Stack.Screen name="login" />
+        <Stack.Screen name="search-result" />
+        <Stack.Screen name="bus-details" />
       </Stack>
       <StatusBar style="auto" />
     </GestureHandlerRootView>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import * as Haptics from 'expo-haptics';
 import { useNavigation } from 'expo-router';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -14,11 +13,12 @@ import {
   useColorScheme,
   View,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const allLocations = [
   'Downtown',
@@ -45,13 +45,13 @@ const recentSearches = [
 
 export default function Search() {
   const theme = Colors[useColorScheme() ?? 'light'];
-
-  const naviagtion = useNavigation();
+  const { top, bottom } = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [activeField, setActiveField] = useState<'from' | 'to' | null>(null);
-
+  const [isSearching, setIsSearching] = useState(false);
   const [filteredFrom, setFilteredFrom] = useState<string[]>([]);
   const [filteredTo, setFilteredTo] = useState<string[]>([]);
 
@@ -107,36 +107,60 @@ export default function Search() {
     Keyboard.dismiss();
   };
 
+  const handleSearch = () => {
+    if (!from || !to) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setIsSearching(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSearching(false);
+      navigation.navigate('search-result', { from, to });
+    }, 1500);
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: top + 16,
+        paddingBottom: bottom,
+        backgroundColor: theme.background,
+      }}
+    >
       <Pressable
-        style={[styles.container, { backgroundColor: theme.card }]}
+        style={[styles.container, { backgroundColor: theme.background }]}
         onPress={() => {
           Keyboard.dismiss();
           setActiveField(null);
         }}
       >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: 20,
-            marginBottom: 25,
-          }}
-        >
-          <TouchableOpacity onPress={() => naviagtion.dispatch(DrawerActions.openDrawer())}>
-            <Ionicons name="menu" size={30} color={theme.text} />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.openDrawer()}
+            style={[styles.menuButton, { backgroundColor: theme.card }]}
+          >
+            <Ionicons name="menu" size={24} color={theme.tint} />
           </TouchableOpacity>
-          <Text style={[styles.header, { color: theme.text }]}>Find Your Bus</Text>
+          <Text style={[styles.headerText, { color: theme.text }]}>Find Your Bus</Text>
         </View>
 
-        <View style={styles.inputWrapper}>
+        {/* Search Form */}
+        <View style={styles.searchForm}>
           {/* From Input */}
           <Animated.View
             style={[
-              styles.inputField,
-              { backgroundColor: theme.card, borderColor: theme.border },
+              styles.inputContainer,
+              {
+                backgroundColor: theme.card,
+                borderColor: activeField === 'from' ? theme.tint : theme.border,
+                shadowColor: theme.text,
+              },
               animatedStyle,
             ]}
           >
@@ -149,7 +173,7 @@ export default function Search() {
             <TextInput
               placeholder="From"
               placeholderTextColor={theme.icon}
-              style={[styles.textInput, { color: theme.text }]}
+              style={[styles.input, { color: theme.text }]}
               value={from}
               onChangeText={handleFromChange}
               onFocus={() => setActiveField('from')}
@@ -159,7 +183,7 @@ export default function Search() {
           {activeField === 'from' && filteredFrom.length > 0 && (
             <View
               style={[
-                styles.suggestionContainer,
+                styles.suggestionsContainer,
                 { backgroundColor: theme.card, borderColor: theme.border },
               ]}
             >
@@ -187,8 +211,12 @@ export default function Search() {
           {/* To Input */}
           <Animated.View
             style={[
-              styles.inputField,
-              { backgroundColor: theme.card, borderColor: theme.border },
+              styles.inputContainer,
+              {
+                backgroundColor: theme.card,
+                borderColor: activeField === 'to' ? theme.tint : theme.border,
+                shadowColor: theme.text,
+              },
               animatedStyle,
             ]}
           >
@@ -196,7 +224,7 @@ export default function Search() {
             <TextInput
               placeholder="To"
               placeholderTextColor={theme.icon}
-              style={[styles.textInput, { color: theme.text }]}
+              style={[styles.input, { color: theme.text }]}
               value={to}
               onChangeText={handleToChange}
               onFocus={() => setActiveField('to')}
@@ -206,7 +234,7 @@ export default function Search() {
           {activeField === 'to' && filteredTo.length > 0 && (
             <View
               style={[
-                styles.suggestionContainer,
+                styles.suggestionsContainer,
                 { backgroundColor: theme.card, borderColor: theme.border },
               ]}
             >
@@ -234,38 +262,82 @@ export default function Search() {
           {/* Swap Button */}
           <TouchableOpacity
             onPress={swapLocations}
-            style={[styles.swapButton, { backgroundColor: theme.tint, borderColor: theme.card }]}
+            style={[
+              styles.swapButton,
+              {
+                backgroundColor: theme.tint,
+                shadowColor: theme.text,
+              },
+            ]}
           >
-            <Ionicons name="swap-vertical-outline" size={28} color={theme.card} />
+            <Ionicons name="swap-vertical" size={22} color={theme.card} />
           </TouchableOpacity>
 
           {/* Search Button */}
-          <TouchableOpacity style={[styles.button, { backgroundColor: theme.tint }]}>
-            <Text style={styles.buttonText}>Search</Text>
+          <TouchableOpacity
+            style={[
+              styles.searchButton,
+              {
+                backgroundColor: theme.tint,
+                opacity: !from || !to ? 0.6 : 1,
+              },
+            ]}
+            onPress={handleSearch}
+            disabled={!from || !to || isSearching}
+          >
+            {isSearching ? (
+              <ActivityIndicator color={theme.card} />
+            ) : (
+              <>
+                <Ionicons name="search" size={20} color={theme.card} style={styles.searchIcon} />
+                <Text style={[styles.searchButtonText, { color: theme.card }]}>Search Buses</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
-        {/* Recent Searches */}
-        <Text style={[styles.subHeader, { color: theme.text }]}>Recent Searches</Text>
+        {/* Recent Searches Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Searches</Text>
 
-        <FlatList
-          data={recentSearches}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.historyItem,
-                { backgroundColor: theme.card, borderColor: theme.border },
-              ]}
-            >
-              <Ionicons name="bus" size={20} color={theme.tint} style={{ marginRight: 10 }} />
-              <Text style={[styles.historyText, { color: theme.text }]}>
-                {item.from} → {item.to}
+          {recentSearches.length > 0 ? (
+            <FlatList
+              data={recentSearches}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.recentItem,
+                    { backgroundColor: theme.card, borderColor: theme.border },
+                  ]}
+                  onPress={() => {
+                    setFrom(item.from);
+                    setTo(item.to);
+                  }}
+                >
+                  <Ionicons name="time" size={18} color={theme.tint} style={styles.recentIcon} />
+                  <Text style={[styles.recentText, { color: theme.text }]}>
+                    {item.from} → {item.to}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={18} color={theme.icon} />
+                </TouchableOpacity>
+              )}
+              scrollEnabled={false}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons
+                name="search-outline"
+                size={32}
+                color={theme.icon}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyText, { color: theme.text }]}>
+                No recent searches found
               </Text>
             </View>
           )}
-          style={styles.historyList}
-        />
+        </View>
       </Pressable>
     </SafeAreaView>
   );
@@ -274,109 +346,153 @@ export default function Search() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
   },
   header: {
-    fontSize: 26,
-    fontWeight: '700',
-  },
-  inputWrapper: {
-    marginBottom: 30,
-    position: 'relative',
-  },
-  inputField: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 15,
+    marginBottom: 32,
+  },
+  menuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
     shadowColor: '#000',
     shadowOpacity: 0.05,
-    shadowRadius: 5,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  searchForm: {
+    marginBottom: 32,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
   inputIcon: {
-    marginRight: 10,
+    marginRight: 12,
   },
-  textInput: {
+  input: {
     flex: 1,
     fontSize: 16,
+    fontWeight: '500',
   },
-  swapButton: {
-    position: 'absolute',
-    right: 10,
-    top: 35,
-    padding: 15,
-    borderRadius: 100,
-    zIndex: 10,
-    borderWidth: 4,
-  },
-  button: {
-    padding: 15,
+  suggestionsContainer: {
+    maxHeight: 200,
     borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  subHeader: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  historyList: {
-    flexGrow: 0,
-  },
-  historyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 10,
     borderWidth: 1,
-    marginBottom: 10,
-  },
-  historyText: {
-    fontSize: 16,
-  },
-  suggestionList: {
-    marginBottom: 10,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  suggestionContainer: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    marginBottom: 15,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 4,
-    height: 200,
   },
-
   suggestionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
-
   suggestionIcon: {
-    marginRight: 10,
+    marginRight: 12,
   },
-
   suggestionText: {
     fontSize: 16,
+    fontWeight: '500',
+  },
+  swapButton: {
+    position: 'absolute',
+    right: 20,
+    top: 42,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  searchButton: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  recentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  recentIcon: {
+    marginRight: 12,
+  },
+  recentText: {
     flex: 1,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    backgroundColor: 'transparent',
+  },
+  emptyIcon: {
+    opacity: 0.5,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '500',
+    opacity: 0.5,
   },
 });
