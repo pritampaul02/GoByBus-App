@@ -142,7 +142,10 @@ export default function Search() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => navigation.openDrawer()}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              navigation.openDrawer();
+            }}
             style={[styles.menuButton, { backgroundColor: theme.card }]}
           >
             <Ionicons name="menu" size={24} color={theme.tint} />

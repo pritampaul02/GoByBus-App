@@ -1,18 +1,13 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  useColorScheme,
-  ScrollView,
-  FlatList,
-} from 'react-native';
+
+import * as Haptics from 'expo-haptics';
+import { useNavigation } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlatList, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
+
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from 'expo-router';
 import TheamedText from '@/components/global/TheamedText';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 
 // Mock ticket data
 const mockTickets = [
