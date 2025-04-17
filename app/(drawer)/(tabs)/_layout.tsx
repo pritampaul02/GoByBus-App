@@ -14,9 +14,9 @@ export default function _layout() {
         tabBarActiveTintColor: theme.tabIconSelected,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
-          backgroundColor: theme.card,
-          borderTopColor: theme.border,
-          borderTopWidth: StyleSheet.hairlineWidth,
+          backgroundColor: theme.background,
+          borderTopColor: theme.card,
+          // borderTopWidth: StyleSheet.hairlineWidth,
           height: 60,
         },
         tabBarLabelStyle: {

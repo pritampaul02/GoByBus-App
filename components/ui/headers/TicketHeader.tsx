@@ -4,14 +4,19 @@ import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
 import TheamedText from '@/components/global/TheamedText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TicketHeader() {
   const theme = Colors[useColorScheme() ?? 'light'];
   const navigation = useNavigation();
+  const { top } = useSafeAreaInsets();
 
   return (
     <View
-      style={[styles.container, { backgroundColor: theme.card, borderBottomColor: theme.border }]}
+      style={[
+        styles.container,
+        { backgroundColor: theme.card, borderBottomColor: theme.border, paddingTop: top + 15 },
+      ]}
     >
       <TouchableOpacity style={[styles.menuButton]} onPress={() => navigation.openDrawer()}>
         <Ionicons name="menu" size={26} color={theme.text} />
@@ -27,11 +32,10 @@ export default function TicketHeader() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
-    height: 80,
     justifyContent: 'flex-start',
   },
   menuButton: {

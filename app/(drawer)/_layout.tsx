@@ -29,6 +29,9 @@ const CustomDrawer = (props: any) => {
           <TheamedText align="center" size={25} style={{ fontWeight: 700 }}>
             User Name
           </TheamedText>
+          <TheamedText align="center" size={15} style={{ fontWeight: 200 }}>
+            user@emailid.com
+          </TheamedText>
         </View>
         <DrawerItemList {...props} />
         <DrawerItem label={'Login'} onPress={() => router.navigate('/login')} />
@@ -43,7 +46,7 @@ export default function DrawerLayout() {
       screenOptions={{
         headerShown: false,
         drawerType: Platform.OS === 'android' && 'back',
-        drawerHideStatusBarOnOpen: true,
+        drawerHideStatusBarOnOpen: Platform.OS === 'ios',
         drawerActiveBackgroundColor: '#5363df',
         drawerActiveTintColor: '#fff',
       }}
