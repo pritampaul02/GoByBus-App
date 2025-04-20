@@ -1,54 +1,21 @@
 import { Drawer } from 'expo-router/drawer';
 import React from 'react';
-import { Image, Platform, Text, View } from 'react-native';
-import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import TheamedText from '@/components/global/TheamedText';
+import { Platform, useColorScheme } from 'react-native';
 import TabsIcon from '@/components/ui/TabsIcon';
-import { router } from 'expo-router';
-
-const CustomDrawer = (props: any) => {
-  return (
-    <View style={{ flex: 1 }}>
-      <DrawerContentScrollView
-        {...props}
-        scrollEnabled={false}
-        contentContainerStyle={{ backgroundColor: '#dde3fe' }}
-      >
-        <View style={{ marginBottom: 30 }}>
-          <Image
-            source={{
-              uri: 'https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/11_avatar-512.png',
-            }}
-            style={{
-              height: 150,
-              width: 150,
-              borderRadius: 50,
-              alignSelf: 'center',
-            }}
-          />
-          <TheamedText align="center" size={25} style={{ fontWeight: 700 }}>
-            User Name
-          </TheamedText>
-          <TheamedText align="center" size={15} style={{ fontWeight: 200 }}>
-            user@emailid.com
-          </TheamedText>
-        </View>
-        <DrawerItemList {...props} />
-        <DrawerItem label={'Login'} onPress={() => router.navigate('/login')} />
-      </DrawerContentScrollView>
-    </View>
-  );
-};
+import { Colors } from '@/constants/Colors';
+import CustomDrawer from '@/components/ui/CustomDrawer';
 
 export default function DrawerLayout() {
+  const theme = Colors[useColorScheme() ?? 'light'];
   return (
     <Drawer
       screenOptions={{
         headerShown: false,
         drawerType: Platform.OS === 'android' && 'back',
         drawerHideStatusBarOnOpen: Platform.OS === 'ios',
-        drawerActiveBackgroundColor: '#5363df',
+        drawerActiveBackgroundColor: theme.tabIconSelected,
         drawerActiveTintColor: '#fff',
+        drawerInactiveTintColor: theme.tabIconDefault,
       }}
       drawerContent={CustomDrawer}
     >
