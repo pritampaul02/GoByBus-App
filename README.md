@@ -1,5 +1,17 @@
 ## Required For new login
 
+### Endpoint
+
+```js
+axios.patch('/api/user/create-user', {
+  aadhaar: 123456789123,
+  name: 'Pritam Paul',
+  phone: 8597169216,
+  role: 'driver',
+  vehicleNo: 'WB76A8909',
+});
+```
+
 - ```json
   {
     "name": "String",

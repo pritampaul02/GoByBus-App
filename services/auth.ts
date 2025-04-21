@@ -36,9 +36,22 @@ export const VerifyOtp = async ({ otp }: { otp: number }) => {
   }
 };
 
-export const register = async ({}) => {
+export const Register = async ({ userDetails }: { userDetails: object }) => {
+  console.log('✅', userDetails);
+
   try {
+    const response = await axiosInstance.patch('/api/user/create-user', userDetails);
+    console.log(response.data);
+
+    useAuthStore.getState().login(response?.data?.user, response?.data?.user?.token);
+
+    return response.data;
   } catch (error) {
     console.error(error);
+    Alert.alert(
+      'Registration failed',
+      'There is a problem while try to Sign up. Please try again later.',
+    );
+    throw error;
   }
 };

@@ -13,31 +13,42 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { Register } from '@/services/auth';
 
 export default function CompleteProfile() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState<string>('');
+  const [phone, setPhone] = useState<number>();
   const [role, setRole] = useState<'passenger' | 'driver'>('passenger');
-  const [vehicleNo, setVehicleNo] = useState('');
-  const [aadhaar, setAadhaar] = useState('');
+  const [vehicleNo, setVehicleNo] = useState<string>('');
+  const [aadhaar, setAadhaar] = useState<number>();
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const formData = { name, phone, role, vehicleNo, aadhaar };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name || !phone) {
       return Alert.alert('Missing Fields', 'Please fill all required details.');
     }
     if (role === 'driver' && (!vehicleNo || !aadhaar)) {
       return Alert.alert('Missing Details', 'Please provide your vehicle No and Aadhaar.');
     }
+    try {
+      setLoading(true);
+      const response = await Register({ userDetails: formData });
+      Alert.alert('Success', `Welcome ${name}!`);
+      router.navigate('/(drawer)/(tabs)/search');
+    } catch (error) {
+      console.log('🚀 ~ handleRegister ~ error:', error);
+      Alert.alert('Error', 'Failed to register. Please try again.');
+    } finally {
+      setLoading(false);
+    }
     console.log('🚀 ~ CompleteProfile ~ formData:', formData);
-
-    Alert.alert('Success', `Welcome ${name}!`);
-    router.navigate('/(drawer)/(tabs)/search');
   };
 
   return (
@@ -68,8 +79,8 @@ export default function CompleteProfile() {
         {/* Phone */}
         <InputField
           label="Phone Number"
-          value={phone}
-          onChangeText={setPhone}
+          value={phone ? String(phone) : ''}
+          onChangeText={(text) => setPhone(Number(text))}
           placeholder="+91 9876543210"
           keyboardType="phone-pad"
           theme={theme}
@@ -111,8 +122,8 @@ export default function CompleteProfile() {
             />
             <InputField
               label="Aadhaar No"
-              value={aadhaar}
-              onChangeText={setAadhaar}
+              value={aadhaar ? String(aadhaar) : ''}
+              onChangeText={(text) => setAadhaar(Number(text))}
               placeholder="1200-XXXX-1258"
               keyboardType="numeric"
               maxLength={12}

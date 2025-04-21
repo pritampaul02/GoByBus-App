@@ -1,11 +1,10 @@
 import { DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Image, useColorScheme, View } from 'react-native';
+import { Alert, Image, Share, useColorScheme, View } from 'react-native';
 import TheamedText from '@/components/global/TheamedText';
 import { Colors } from '@/constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Sharing from 'expo-sharing';
 import TabsIcon from './TabsIcon';
 
 const CustomDrawer = (props: any) => {
@@ -34,30 +33,27 @@ const CustomDrawer = (props: any) => {
     return `${String(hrs).padStart(2, '0')}:${mins}:${secs} ${ampm}`;
   };
 
-  // const [currentTime, setCurrentTime] = useState(new Date());
-
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setCurrentTime(new Date());
-  //   }, 1000);
-
-  //   return () => clearInterval(timer);
-  // }, []);
-
-  // const formatTime = (date: Date) => {
-  //   const hrs = String(date.getHours()).padStart(2, '0');
-  //   const mins = String(date.getMinutes()).padStart(2, '0');
-  //   const secs = String(date.getSeconds()).padStart(2, '0');
-  //   return `${hrs}:${mins}:${secs}`;
-  // };
-
   const isLoggedIn = true;
 
   const handleShareApp = async () => {
     try {
-      await Sharing.shareAsync('https://yourappdownloadlink.com');
+      const message = 'Hey! Check out this amazing app: https://lens-lock.vercel.app';
+
+      // if (Platform.OS === 'web') {
+      //   // Web doesn't support Share API properly
+      //   await Clipboard.setStringAsync('https://yourappdownloadlink.com');
+      //   Alert.alert('Link Copied!', 'You can now paste it anywhere to share.');
+      //   return;
+      // }
+
+      await Share.share({
+        message,
+        url: 'https://lens-lock.vercel.app',
+        title: 'Download Our App',
+      });
     } catch (error) {
       console.error('Error sharing app:', error);
+      Alert.alert('Sharing Failed', 'Something went wrong while trying to share the app.');
     }
   };
 
