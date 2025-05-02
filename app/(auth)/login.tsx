@@ -41,10 +41,9 @@ export default function LoginScreen() {
       setLoading(true);
       const response = await SendEmail({ email });
 
-      console.log('🚀 ~ handleSendOtp ~ response:', response);
       if (response?.success === true) {
         setStep('otp');
-        Alert.alert('Success', 'OTP sent to your email.');
+        Alert.alert('Success', response.message || 'OTP sent to your email.');
       }
     } catch (error) {
       console.log('🚀 ~ handleSendOtp ~ error:', error);
@@ -64,12 +63,14 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       const { status, user } = await VerifyOtp({ otp });
+      console.log('🚀 ~ handleVerifyOtp ~ user:', user);
+
       if (status === 'existing') {
         Alert.alert('Login Success', `Welcome back ${user.name || ''}!`);
-        router.dismissAll();
-        router.navigate('/(drawer)/(tabs)/search');
+        router.replace('/(protected)/(drawer)/(tabs)/search');
       } else {
-        navigation.navigate('complete-profile', { email });
+        const { token } = user;
+        navigation.navigate('complete-profile', { email, token });
       }
     } catch (error) {
       console.log('🚀 ~ handleVerifyOtp ~ error:', error);

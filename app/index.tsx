@@ -3,11 +3,14 @@ import { View, StyleSheet, Image, Animated, Easing } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const SplashScreen = () => {
   const theme = Colors[useColorScheme() ?? 'light'];
   const scaleValue = new Animated.Value(0.8);
   const opacityValue = new Animated.Value(0);
+
+  const { isLoggedIn, token } = useAuthStore();
 
   useEffect(() => {
     Animated.parallel([
@@ -23,7 +26,11 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      setTimeout(() => router.replace('/(drawer)/(tabs)/search'), 1000);
+      setTimeout(() => {
+        isLoggedIn && token
+          ? router.replace('/(protected)/(drawer)/(tabs)/search')
+          : router.replace('/(auth)/login');
+      }, 1000);
     });
   }, []);
 

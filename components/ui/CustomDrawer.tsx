@@ -1,4 +1,4 @@
-import { DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, Share, useColorScheme, View } from 'react-native';
@@ -6,18 +6,17 @@ import TheamedText from '@/components/global/TheamedText';
 import { Colors } from '@/constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TabsIcon from './TabsIcon';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const CustomDrawer = (props: any) => {
   const theme = Colors[useColorScheme() ?? 'light'];
   const { top, bottom } = useSafeAreaInsets();
+  const { user, logout } = useAuthStore();
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -26,28 +25,14 @@ const CustomDrawer = (props: any) => {
     const mins = String(date.getMinutes()).padStart(2, '0');
     const secs = String(date.getSeconds()).padStart(2, '0');
     const ampm = hrs >= 12 ? 'PM' : 'AM';
-
-    hrs = hrs % 12;
-    hrs = hrs ? hrs : 12; // 0 => 12
-
+    hrs = hrs % 12 || 12;
     return `${String(hrs).padStart(2, '0')}:${mins}:${secs} ${ampm}`;
   };
 
-  const isLoggedIn = true;
-
   const handleShareApp = async () => {
     try {
-      const message = 'Hey! Check out this amazing app: https://lens-lock.vercel.app';
-
-      // if (Platform.OS === 'web') {
-      //   // Web doesn't support Share API properly
-      //   await Clipboard.setStringAsync('https://yourappdownloadlink.com');
-      //   Alert.alert('Link Copied!', 'You can now paste it anywhere to share.');
-      //   return;
-      // }
-
       await Share.share({
-        message,
+        message: 'Hey! Check out this amazing app: https://lens-lock.vercel.app',
         url: 'https://lens-lock.vercel.app',
         title: 'Download Our App',
       });
@@ -62,16 +47,21 @@ const CustomDrawer = (props: any) => {
   };
 
   const handleAuthAction = () => {
-    if (isLoggedIn) {
-      router.push('/login');
-    } else {
-      router.navigate('/login');
-    }
+    logout();
+    router.replace('/(auth)/login');
   };
+
+  // Filter routes based on role
+  const filteredRoutes = props.state.routes.filter((route: any) => {
+    if (!user || user.role !== 'driver') {
+      return !['add-bus', 'add-bus-stops'].includes(route.name);
+    }
+    return true;
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      {/* User Info Header */}
+      {/* Header */}
       <View
         style={{
           padding: 20,
@@ -93,14 +83,29 @@ const CustomDrawer = (props: any) => {
             borderRadius: 99,
           }}
         />
+        <TheamedText
+          size={14}
+          align="center"
+          style={{
+            textTransform: 'capitalize',
+            backgroundColor: theme.background,
+            padding: 8,
+            borderRadius: 15,
+            color: theme.tint,
+            marginTop: -20,
+            elevation: 2,
+          }}
+        >
+          {user?.role}
+        </TheamedText>
         <TheamedText size={22} align="center" style={{ fontWeight: '700', marginTop: 10 }}>
-          User Name
+          {user?.name ?? 'User Name'}
         </TheamedText>
         <TheamedText size={14} align="center" style={{ marginBottom: 5 }}>
-          user@emailid.com
+          {user?.email}
         </TheamedText>
 
-        {/* Real Timer */}
+        {/* Clock */}
         <View
           style={{
             marginTop: 5,
@@ -138,14 +143,34 @@ const CustomDrawer = (props: any) => {
           paddingTop: 10,
         }}
       >
-        <DrawerItemList {...props} />
+        {filteredRoutes.map((route: any, index: number) => {
+          const { key, name } = route;
+          const descriptor = props.descriptors[key];
+          const isFocused = props.state.index === index;
+
+          if (!descriptor) return null;
+
+          return (
+            <DrawerItem
+              key={key}
+              label={descriptor.options.title ?? name}
+              icon={descriptor.options.drawerIcon}
+              focused={isFocused}
+              onPress={() => props.navigation.navigate(name)}
+              activeTintColor={theme.card}
+              inactiveTintColor={theme.tabIconDefault}
+              activeBackgroundColor={theme.tabIconSelected}
+              labelStyle={{ color: isFocused ? '#fff' : theme.tabIconDefault, fontSize: 16 }}
+            />
+          );
+        })}
 
         {/* Extra Items */}
         <DrawerItem
           label="Share App"
           onPress={handleShareApp}
           labelStyle={{ fontSize: 16, color: theme.tabIconDefault }}
-          icon={({ color, size }: any) => (
+          icon={({ size }: any) => (
             <TabsIcon name="share-social-outline" color={theme.tabIconDefault} size={size} />
           )}
         />
@@ -153,14 +178,13 @@ const CustomDrawer = (props: any) => {
           label="Clear History"
           onPress={handleClearHistory}
           labelStyle={{ fontSize: 16, color: theme.tabIconDefault }}
-          icon={({ color, size }: any) => (
-            // <MaterialCommunityIcons name="history" color={theme.tabIconDefault} size={size} />
+          icon={({ size }: any) => (
             <TabsIcon name="timer-outline" color={theme.tabIconDefault} size={size} />
           )}
         />
       </DrawerContentScrollView>
 
-      {/* Footer: Login or Logout */}
+      {/* Footer: Logout */}
       <View
         style={{
           padding: 10,
@@ -171,15 +195,11 @@ const CustomDrawer = (props: any) => {
         }}
       >
         <DrawerItem
-          label={isLoggedIn ? 'Logout' : 'Login'}
+          label="Logout"
           onPress={handleAuthAction}
           labelStyle={{ fontSize: 16, color: theme.alert, fontWeight: '700' }}
-          icon={({ color, size }: any) => (
-            <TabsIcon
-              name={isLoggedIn ? 'log-out-outline' : 'log-in-outline'}
-              color={theme.alert}
-              size={size}
-            />
+          icon={({ size }: any) => (
+            <TabsIcon name="log-out-outline" color={theme.alert} size={size} />
           )}
         />
       </View>
@@ -188,47 +208,3 @@ const CustomDrawer = (props: any) => {
 };
 
 export default CustomDrawer;
-
-// import { Drawer } from 'expo-router/drawer';
-// import React from 'react';
-// import { Image, Platform, Text, useColorScheme, View } from 'react-native';
-// import TabsIcon from '@/components/ui/TabsIcon';
-// import Drawe from '@/components/ui/CustomDrawer';
-// import { Colors } from '@/constants/Colors';
-
-// import TheamedText from '@/components/global/TheamedText';
-// import { router } from 'expo-router';
-// import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-// const CustomDrawer = (props: any) => {
-//   return (
-//     <View style={{ flex: 1 }}>
-//       <DrawerContentScrollView
-//         {...props}
-//         scrollEnabled={false}
-//         contentContainerStyle={{ backgroundColor: '#dde3fe' }}
-//       >
-//         <View style={{ marginBottom: 30 }}>
-//           <Image
-//             source={{
-//               uri: 'https://cdn3.iconfinder.com/data/icons/business-avatar-1/512/11_avatar-512.png',
-//             }}
-//             style={{
-//               height: 150,
-//               width: 150,
-//               borderRadius: 50,
-//               alignSelf: 'center',
-//             }}
-//           />
-//           <TheamedText align="center" size={25} style={{ fontWeight: 700 }}>
-//             User Name
-//           </TheamedText>
-//           <TheamedText align="center" size={15} style={{ fontWeight: 200 }}>
-//             user@emailid.com
-//           </TheamedText>
-//         </View>
-//         <DrawerItemList {...props} />
-//         <DrawerItem label={'Login'} onPress={() => router.navigate('/login')} />
-//       </DrawerContentScrollView>
-//     </View>
-//   );
-// };

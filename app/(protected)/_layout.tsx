@@ -1,19 +1,18 @@
-import { useAuthStore } from '@/store/useAuthStore';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-export default function RootLayout() {
-  const { isLoggedIn, token, user } = useAuthStore();
+export default function ProtectedLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        {user?.name && user?.email && token && isLoggedIn ? (
-          <Stack.Screen name="(protected)" />
-        ) : (
-          <Stack.Screen name="(auth)" />
-        )}
+        <Stack.Screen name="(drawer)" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="complete-profile" />
+        <Stack.Screen name="search-result" />
+        <Stack.Screen name="bus-details" />
+        <Stack.Screen name="all-buses" />
       </Stack>
       <StatusBar style="auto" />
     </GestureHandlerRootView>

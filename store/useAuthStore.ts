@@ -6,10 +6,12 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  role?: string;
 }
 
 interface AuthState {
   loading: boolean;
+  isLoggedIn: boolean;
   user: User | null;
   token: string | null;
   setLoading: (loading: boolean) => void;
@@ -18,14 +20,15 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-  persist(
+  persist<AuthState>(
     (set) => ({
       loading: false,
+      isLoggedIn: false,
       user: null,
       token: null,
       setLoading: (loading) => set({ loading }),
-      login: (user, token) => set({ user, token }),
-      logout: () => set({ user: null, token: null }),
+      login: (user, token) => set({ user, token, isLoggedIn: true }),
+      logout: () => set({ user: null, token: null, isLoggedIn: false }),
     }),
     {
       name: 'auth-storage',

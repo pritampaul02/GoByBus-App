@@ -19,15 +19,13 @@ export const SendEmail = async ({ email }: { email: string }) => {
 export const VerifyOtp = async ({ otp }: { otp: number }) => {
   try {
     const response = await axiosInstance.post('/auth/verify-otp', { otp });
-    console.log(response.data);
-
     const { name, role } = response.data.user;
 
     if (name && role) {
       useAuthStore.getState().login(response.data.user, response.data.user.token);
       return { status: 'existing', user: response.data.user };
     } else {
-      return { status: 'new' };
+      return { status: 'new', user: response.data.user };
     }
   } catch (error) {
     console.error(error);
@@ -36,11 +34,13 @@ export const VerifyOtp = async ({ otp }: { otp: number }) => {
   }
 };
 
-export const Register = async ({ userDetails }: { userDetails: object }) => {
+export const Register = async ({ userDetails, token }: { userDetails: object; token: string }) => {
   console.log('✅', userDetails);
 
   try {
-    const response = await axiosInstance.patch('/api/user/create-user', userDetails);
+    const response = await axiosInstance.post('/auth/update-profile', userDetails, {
+      headers: { token },
+    });
     console.log(response.data);
 
     useAuthStore.getState().login(response?.data?.user, response?.data?.user?.token);

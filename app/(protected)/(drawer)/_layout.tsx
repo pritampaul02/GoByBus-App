@@ -4,9 +4,12 @@ import { Platform, useColorScheme } from 'react-native';
 import TabsIcon from '@/components/ui/TabsIcon';
 import { Colors } from '@/constants/Colors';
 import CustomDrawer from '@/components/ui/CustomDrawer';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function DrawerLayout() {
   const theme = Colors[useColorScheme() ?? 'light'];
+
+  const { user } = useAuthStore();
   return (
     <Drawer
       screenOptions={{
@@ -38,6 +41,24 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="add-bus"
+        options={{
+          title: 'Add Bus',
+          drawerIcon: ({ size, color }: any) => (
+            <TabsIcon name="bus-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="add-bus-stops"
+        options={{
+          title: 'Add Bus Stops',
+          drawerIcon: ({ size, color }: any) => (
+            <TabsIcon name="map-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="report"
         options={{
           title: 'Report',
@@ -47,11 +68,11 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="settings"
+        name="fevourite-bus"
         options={{
-          title: 'Settings',
+          title: 'Fevourite Bus',
           drawerIcon: ({ size, color }: any) => (
-            <TabsIcon name="settings-outline" size={size} color={color} />
+            <TabsIcon name="heart-outline" size={size} color={color} />
           ),
         }}
       />
