@@ -35,8 +35,9 @@ const CustomDrawer = (props: any) => {
   const handleShareApp = async () => {
     try {
       await Share.share({
-        message: 'Hey! Check out this amazing app: https://lens-lock.vercel.app',
-        url: 'https://lens-lock.vercel.app',
+        message:
+          'Hey! Check out this amazing app: https://play.google.com/store/apps/details?id=com.example.app',
+        url: 'https://play.google.com/store/apps/details?id=com.example.app',
         title: 'Download Our App',
       });
     } catch (error) {
