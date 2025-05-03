@@ -6,145 +6,131 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileScreen() {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [profile, setProfile] = useState({
-    fullName: '',
-    password: '',
-    mobile: '',
-    email: '',
-    address: '',
-  });
+const ProfileScreen = () => {
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>My Profile</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.header}>My Profile</Text>
 
-      <View style={styles.avatar} />
+        <View style={styles.profileImagePlaceholder} />
 
-      <View style={styles.form}>
-        <Text style={styles.label}>Full Name-</Text>
-        <TextInput
-          style={styles.input}
-          value={profile.fullName}
-          onChangeText={(text) => setProfile({ ...profile, fullName: text })}
-        />
-
-        <Text style={styles.label}>Password-</Text>
-        <View style={styles.passwordRow}>
-          <TextInput
-            style={styles.input}
-            secureTextEntry={!passwordVisible}
-            value={profile.password}
-            onChangeText={(text) => setProfile({ ...profile, password: text })}
-          />
-          <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
-            <Text style={styles.showText}>Show</Text>
-          </TouchableOpacity>
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Full Name-</Text>
+          <TextInput style={styles.input} placeholder="Enter full name" />
         </View>
 
-        <Text style={styles.label}>Mobile Number-</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="phone-pad"
-          value={profile.mobile}
-          onChangeText={(text) => setProfile({ ...profile, mobile: text })}
-        />
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Password-</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Text style={styles.showText}>{showPassword ? 'Hide' : 'Show'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        <Text style={styles.label}>Email Id-</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="email-address"
-          value={profile.email}
-          onChangeText={(text) => setProfile({ ...profile, email: text })}
-        />
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Mobile Number-</Text>
+          <TextInput style={styles.input} placeholder="Enter mobile number" keyboardType="phone-pad" />
+        </View>
 
-        <Text style={styles.label}>Address-</Text>
-        <TextInput
-          style={styles.textArea}
-          multiline
-          numberOfLines={4}
-          value={profile.address}
-          onChangeText={(text) => setProfile({ ...profile, address: text })}
-        />
-      </View>
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Email Id-</Text>
+          <TextInput style={styles.input} placeholder="Enter email" keyboardType="email-address" />
+        </View>
 
-      <TouchableOpacity style={styles.editButton}>
-        <Ionicons name="create" size={24} color="white" />
-      </TouchableOpacity>
-    </ScrollView>
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Address-</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Enter address"
+            multiline={true}
+            numberOfLines={4}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.floatingButton}>
+          <Ionicons name="create-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
+
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f3f4f6',
+    flex: 1,
+    backgroundColor: '#F2F2F2',
+  },
+  scrollContainer: {
     padding: 20,
-    paddingBottom: 100,
+    alignItems: 'center',
   },
   header: {
-    backgroundColor: '#3b82f6',
-    padding: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerText: {
+    backgroundColor: '#3399FF',
     color: 'white',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-  },
-  avatar: {
-    height: 80,
-    width: 80,
-    borderRadius: 10,
-    backgroundColor: '#e5e7eb',
-    alignSelf: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 20,
     marginBottom: 20,
   },
-  form: {
-    gap: 10,
+  profileImagePlaceholder: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  formGroup: {
+    width: '100%',
+    marginBottom: 15,
   },
   label: {
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 4,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#EAEAEA',
     borderRadius: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  passwordRow: {
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   showText: {
     marginLeft: 10,
-    color: 'gray',
+    fontWeight: 'bold',
+    color: '#333',
   },
   textArea: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 10,
-    height: 80,
+    height: 100,
     textAlignVertical: 'top',
-    borderWidth: 1,
-    borderColor: '#ccc',
   },
-  editButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
-    backgroundColor: '#3b82f6',
-    padding: 15,
-    borderRadius: 30,
-    elevation: 3,
+  floatingButton: {
+    backgroundColor: '#3399FF',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginTop: 20,
   },
 });
