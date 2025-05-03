@@ -1,0 +1,50 @@
+[
+    {
+        "__v": 0,
+        "_id": "68159d4323e7c7f8dff2f906",
+        "busNumber": "B143",
+        "busType": "regular",
+        "isAC": true,
+        "isExpress": true,
+        "name": "Rudra",
+        "owner": "6804bd843efa5a892feda6b8",
+        "registrationNumber": "WB34A5656",
+        "seatCapacity": 33
+    },
+    {
+        "__v": 0,
+        "_id": "6815a02cced28ca54ae845fb",
+        "busNumber": "B435",
+        "busType": "volvo",
+        "isAC": false,
+        "isExpress": false,
+        "name": "Sefali",
+        "owner": "6804bd843efa5a892feda6b8",
+        "registrationNumber": "WB33A5678",
+        "seatCapacity": 45
+    },
+    {
+        "__v": 0,
+        "_id": "6815ba35ef22886bfbde67fc",
+        "busNumber": "B56",
+        "busType": "regular",
+        "isAC": false,
+        "isExpress": true,
+        "name": "Subhasis",
+        "owner": "6804bd843efa5a892feda6b8",
+        "registrationNumber": "WB42AW4725 ",
+        "seatCapacity": 45
+    },
+    {
+        "__v": 0,
+        "_id": "6815ba62ef22886bfbde6801",
+        "busNumber": "B65",
+        "busType": "mini",
+        "isAC": false,
+        "isExpress": true,
+        "name": "Sathi",
+        "owner": "6804bd843efa5a892feda6b8",
+        "registrationNumber": "WB42AW4726",
+        "seatCapacity": 40
+    }
+]

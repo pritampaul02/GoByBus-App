@@ -12,7 +12,8 @@ export default function ProtectedLayout() {
         <Stack.Screen name="complete-profile" />
         <Stack.Screen name="search-result" />
         <Stack.Screen name="bus-details" />
-        <Stack.Screen name="all-buses" />
+        <Stack.Screen name="add-bus" />
+        <Stack.Screen name="add-bus-stops" />
       </Stack>
       <StatusBar style="auto" />
     </GestureHandlerRootView>

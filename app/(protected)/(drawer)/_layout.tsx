@@ -41,7 +41,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="add-bus"
+        name="your-bus"
         options={{
           title: 'Add Bus',
           drawerIcon: ({ size, color }: any) => (
@@ -50,20 +50,11 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="add-bus-stops"
+        name="my-stops"
         options={{
           title: 'Add Bus Stops',
           drawerIcon: ({ size, color }: any) => (
             <TabsIcon name="map-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="report"
-        options={{
-          title: 'Report',
-          drawerIcon: ({ size, color }: any) => (
-            <TabsIcon name="ban-outline" size={size} color={color} />
           ),
         }}
       />

@@ -8,57 +8,58 @@ import { FlatList, StyleSheet, TouchableOpacity, useColorScheme, View } from 're
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import TheamedText from '@/components/global/TheamedText';
+import { FlashList } from '@shopify/flash-list';
 
 // Mock ticket data
-const mockTickets = [
-  {
-    id: '1',
-    busNumber: 'MB-101',
-    from: 'Downtown',
-    to: 'Airport',
-    date: '15 Jun 2024',
-    time: '08:30 AM',
-    seats: ['A1', 'A2'],
-    price: 900,
-    status: 'upcoming',
-    qrCode: 'https://example.com/qr/1',
-  },
-  {
-    id: '2',
-    busNumber: 'SB-205',
-    from: 'Central Station',
-    to: 'North Avenue',
-    date: '10 Jun 2024',
-    time: '02:15 PM',
-    seats: ['B3'],
-    price: 450,
-    status: 'completed',
-    qrCode: 'https://example.com/qr/2',
-  },
-  {
-    id: '3',
-    busNumber: 'SB-205',
-    from: 'Central Station',
-    to: 'North Avenue',
-    date: '10 Jun 2024',
-    time: '02:15 PM',
-    seats: ['B3'],
-    price: 450,
-    status: 'completed',
-    qrCode: 'https://example.com/qr/2',
-  },
-  {
-    id: '4',
-    busNumber: 'SB-205',
-    from: 'Central Station',
-    to: 'North Avenue',
-    date: '10 Jun 2024',
-    time: '02:15 PM',
-    seats: ['B3'],
-    price: 450,
-    status: 'completed',
-    qrCode: 'https://example.com/qr/2',
-  },
+const mockTickets: any = [
+  // {
+  //   id: '1',
+  //   busNumber: 'MB-101',
+  //   from: 'Downtown',
+  //   to: 'Airport',
+  //   date: '15 Jun 2024',
+  //   time: '08:30 AM',
+  //   seats: ['A1', 'A2'],
+  //   price: 900,
+  //   status: 'upcoming',
+  //   qrCode: 'https://example.com/qr/1',
+  // },
+  // {
+  //   id: '2',
+  //   busNumber: 'SB-205',
+  //   from: 'Central Station',
+  //   to: 'North Avenue',
+  //   date: '10 Jun 2024',
+  //   time: '02:15 PM',
+  //   seats: ['B3'],
+  //   price: 450,
+  //   status: 'completed',
+  //   qrCode: 'https://example.com/qr/2',
+  // },
+  // {
+  //   id: '3',
+  //   busNumber: 'SB-205',
+  //   from: 'Central Station',
+  //   to: 'North Avenue',
+  //   date: '10 Jun 2024',
+  //   time: '02:15 PM',
+  //   seats: ['B3'],
+  //   price: 450,
+  //   status: 'completed',
+  //   qrCode: 'https://example.com/qr/2',
+  // },
+  // {
+  //   id: '4',
+  //   busNumber: 'SB-205',
+  //   from: 'Central Station',
+  //   to: 'North Avenue',
+  //   date: '10 Jun 2024',
+  //   time: '02:15 PM',
+  //   seats: ['B3'],
+  //   price: 450,
+  //   status: 'completed',
+  //   qrCode: 'https://example.com/qr/2',
+  // },
 ];
 
 const TicketHeader = () => {
@@ -89,14 +90,12 @@ const TicketHeader = () => {
 
 const TicketCard = ({ ticket }: any) => {
   const theme = Colors[useColorScheme() ?? 'light'];
-  const navigation = useNavigation();
 
   return (
     <TouchableOpacity
       style={[styles.ticketCard, { backgroundColor: theme.card }]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        // navigation.navigate('TicketDetails', { ticket });
       }}
     >
       <View style={styles.ticketHeader}>
@@ -191,17 +190,20 @@ const Ticket = () => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <TicketHeader />
 
-      {hasTickets ? (
-        <FlatList
-          data={mockTickets}
-          renderItem={({ item }) => <TicketCard ticket={item} />}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <EmptyTickets />
-      )}
+      {/* {hasTickets ? ( */}
+      <FlashList
+        data={mockTickets}
+        renderItem={({ item }) => <TicketCard ticket={item} />}
+        keyExtractor={(item) => item?.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+        estimatedItemSize={200}
+        // onRefresh={() => console.log('Refreshing....')}
+        ListEmptyComponent={EmptyTickets}
+      />
+      {/* // ) : ( */}
+      {/* //   <EmptyTickets /> */}
+      {/* // )} */}
     </View>
   );
 };
@@ -338,6 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
+    paddingTop: 80,
   },
   emptyIllustration: {
     width: 120,

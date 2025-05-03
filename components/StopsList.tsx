@@ -2,16 +2,17 @@ import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import TimePickerInput from './TimePickerInput';
 
 interface Stop {
   id: string;
-  name: string;
-  time: string;
+  standName: string;
+  arrivalTime: string;
 }
 
 interface StopsListProps {
   stops: Stop[];
-  onUpdate: (id: string, field: 'name' | 'time', value: string) => void;
+  onUpdate: (id: string, field: 'standName' | 'arrivalTime', value: string) => void;
   onRemove: (id: string) => void;
   theme: any;
 }
@@ -42,24 +43,20 @@ export default function StopsList({ stops, onUpdate, onRemove, theme }: StopsLis
               }
               placeholderTextColor={theme.icon}
               style={[styles.input, styles.stopNameInput, { color: theme.text }]}
-              value={stop.name}
-              onChangeText={(value) => onUpdate(stop.id, 'name', value)}
+              value={stop.standName}
+              onChangeText={(value) => onUpdate(stop.id, 'standName', value)}
             />
 
             <View style={styles.timeInputContainer}>
-              <Ionicons name="time-outline" size={16} color={theme.tint} style={styles.timeIcon} />
-              <TextInput
-                placeholder="HH:MM"
-                placeholderTextColor={theme.icon}
-                style={[styles.input, styles.timeInput, { color: theme.text }]}
-                value={stop.time}
-                onChangeText={(value) => onUpdate(stop.id, 'time', value)}
-                keyboardType="numbers-and-punctuation"
+              <TimePickerInput
+                onChange={(value) => onUpdate(stop.id, 'arrivalTime', value)}
+                value={stop.arrivalTime}
+                theme={theme}
               />
             </View>
           </View>
 
-          {/* Actions: Delete + Drag Handle */}
+          {/* Actions: Delete */}
           <View style={styles.actionButtons}>
             <TouchableOpacity
               onPress={() => onRemove(stop.id)}
@@ -67,14 +64,6 @@ export default function StopsList({ stops, onUpdate, onRemove, theme }: StopsLis
               activeOpacity={0.7}
             >
               <Ionicons name="trash" size={20} color="#fff" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-              style={styles.dragHandle}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="reorder-three" size={24} color={theme.icon} />
             </TouchableOpacity>
           </View>
         </View>
@@ -137,6 +126,8 @@ const styles = StyleSheet.create({
   timeInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '80%',
+    height: 50,
   },
   timeIcon: {
     marginRight: 6,
@@ -149,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingLeft: 8,
+    alignSelf: 'center',
   },
   deleteButton: {
     backgroundColor: '#FF3B30',

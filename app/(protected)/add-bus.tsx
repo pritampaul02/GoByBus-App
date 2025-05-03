@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { useNavigation, useRouter } from 'expo-router';
+import { router, useNavigation, useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,13 +20,12 @@ import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import axiosInstance from '@/api/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useBusStore } from '@/store/useBusStore';
 
 export default function CreateBusScreen() {
   const theme = Colors[useColorScheme() ?? 'light'];
   const { bottom } = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(false);
-
-  const navigation = useNavigation();
 
   const { token } = useAuthStore();
 
@@ -34,13 +33,15 @@ export default function CreateBusScreen() {
   const [busName, setBusName] = useState('');
   const [busRegistrationNumber, setBusRegistrationNumber] = useState('');
   const [busNumber, setBusNumber] = useState('');
-  const [busType, setBusType] = useState('Regular');
+  const [busType, setBusType] = useState<string>('Regular');
   const [capacity, setCapacity] = useState('');
   const [hasAC, setHasAC] = useState<boolean>(false);
   const [isExpress, setIsExpress] = useState<boolean>(false);
 
   // Form validation
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const { addBus } = useBusStore();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -66,38 +67,35 @@ export default function CreateBusScreen() {
 
     try {
       setIsLoading(true);
-      console.log(token);
 
-      console.log({
+      const response: any = await addBus({
         name: busName,
+        busNumber: busNumber,
         registrationNumber: busRegistrationNumber,
-        busNumber,
-        busType: busType.toLowerCase(),
         seatCapacity: Number(capacity),
+        busType: busType.toLowerCase(),
         isAC: hasAC,
         isExpress,
       });
 
-      const { data } = await axiosInstance.post(
-        '/bus/create',
-        {
-          name: busName,
-          busNumber: busNumber,
-          registrationNumber: busRegistrationNumber,
-          seatCapacity: Number(capacity),
-          busType: busType.toLowerCase(),
-          isAC: hasAC,
-          isExpress,
-        },
-        {
-          headers: {
-            token,
-          },
-        },
-      );
-      console.log(data);
+      if (response?.success) {
+        // Reset form
+        setBusName('');
+        setBusRegistrationNumber('');
+        setBusNumber('');
+        setBusType('Regular');
+        setCapacity('');
+        setHasAC(false);
+        setIsExpress(false);
+        setErrors({});
+        Alert.alert('✅ Success', 'Bus registered successfully!');
+        router.back();
+      } else {
+        Alert.alert('❌ Error', 'Failed to register your Bus. Please try again later.');
+      }
     } catch (error) {
       console.log(error);
+      Alert.alert('❌ Error', 'Failed to register your Bus. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -116,11 +114,11 @@ export default function CreateBusScreen() {
             <TouchableOpacity
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                navigation.openDrawer();
+                router.back();
               }}
-              style={[styles.menuButton, { backgroundColor: theme.card }]}
+              style={[styles.menuButton]}
             >
-              <Ionicons name="menu" size={24} color={theme.tint} />
+              <Ionicons name="arrow-back" size={24} color={theme.tint} />
             </TouchableOpacity>
             <Text style={[styles.headerText, { color: theme.text }]}>Register your Bus</Text>
           </View>
@@ -265,7 +263,7 @@ export default function CreateBusScreen() {
                   styles.inputContainer,
                   {
                     backgroundColor: theme.card,
-                    borderColor: errors.capacity ? 'red' : theme.border,
+                    borderColor: errors.capacity ? theme.alert : theme.border,
                   },
                 ]}
               >
@@ -372,11 +370,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    // shadowColor: '#000',
+    // shadowOpacity: 0.05,
+    // shadowRadius: 8,
+    // shadowOffset: { width: 0, height: 2 },
+    // elevation: 2,
   },
   headerText: {
     fontSize: 24,
