@@ -54,7 +54,7 @@ const CustomDrawer = (props: any) => {
   // Filter routes based on role
   const filteredRoutes = props.state.routes.filter((route: any) => {
     if (!user || user.role !== 'driver') {
-      return !['add-bus', 'add-bus-stops'].includes(route.name);
+      return !['your-bus', 'my-stops'].includes(route.name);
     }
     return true;
   });
