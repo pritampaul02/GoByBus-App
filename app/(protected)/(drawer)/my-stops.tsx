@@ -81,12 +81,12 @@ export default function MyBuses() {
             <Ionicons name="menu" size={24} color={theme.tint} />
           </TouchableOpacity>
 
-          <Text style={[styles.headerText, { color: theme.text }]}>Your Buses</Text>
+          <Text style={[styles.headerText, { color: theme.text }]}>Your bus & Stops</Text>
 
           <TouchableOpacity
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              router.navigate('/(protected)/add-bus');
+              router.navigate('/(protected)/add-bus-stops');
             }}
             style={[styles.menuButton, { backgroundColor: theme.card }]}
           >

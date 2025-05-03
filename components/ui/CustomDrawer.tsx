@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TabsIcon from './TabsIcon';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSearchStore } from '@/store/useSearchStore';
 
 const CustomDrawer = (props: any) => {
   const theme = Colors[useColorScheme() ?? 'light'];
@@ -14,6 +15,8 @@ const CustomDrawer = (props: any) => {
   const { user, logout } = useAuthStore();
 
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  const { clearRecentSearches } = useSearchStore();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -43,7 +46,7 @@ const CustomDrawer = (props: any) => {
   };
 
   const handleClearHistory = () => {
-    console.log('History Cleared');
+    clearRecentSearches();
   };
 
   const handleAuthAction = () => {

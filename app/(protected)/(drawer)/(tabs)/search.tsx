@@ -1,61 +1,50 @@
-import React, { useState } from 'react';
-import * as Haptics from 'expo-haptics';
-import { useNavigation } from 'expo-router';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+// src/features/search/screens/SearchScreen.tsx
+import React, { useState, useEffect } from 'react';
 import {
-  FlatList,
-  Keyboard,
+  View,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
-  useColorScheme,
-  View,
-  SafeAreaView,
   ActivityIndicator,
+  SafeAreaView,
+  Text,
 } from 'react-native';
-
-import { Colors } from '@/constants/Colors';
+import { useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { SearchInput } from '@/components/search/SearchInput';
+import { RecentSearches } from '@/components/search/RecentSearches';
+import { useSearchStore } from '@/store/useSearchStore';
+import { Stand } from '@/types/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const allLocations = [
-  'Downtown',
-  'Central Park',
-  'Union Station',
-  'Airport',
-  'Main Library',
-  'Tech Hub',
-  'City Center',
-  'North Avenue',
-  'Grand Terminal',
-  'East Market',
-  'Haldia',
-  'Panskura',
-  'Digha',
-  'Ghatal',
-];
-
-const recentSearches = [
-  { id: '1', from: 'Downtown', to: 'Central Park' },
-  { id: '2', from: 'Union Station', to: 'Airport' },
-  { id: '3', from: 'Tech Hub', to: 'Main Library' },
-];
-
-export default function Search() {
+export default function SearchScreen() {
   const theme = Colors[useColorScheme() ?? 'light'];
   const { top, bottom } = useSafeAreaInsets();
   const navigation = useNavigation();
 
+  const { stands, recentSearches, loading, fetchStands, searchBuses, addRecentSearch } =
+    useSearchStore();
+
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const [fromId, setFromId] = useState('');
+  const [toId, setToId] = useState('');
   const [activeField, setActiveField] = useState<'from' | 'to' | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [filteredFrom, setFilteredFrom] = useState<string[]>([]);
-  const [filteredTo, setFilteredTo] = useState<string[]>([]);
 
   const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    fetchStands();
+  }, []);
+
+  const filteredStands = (query: string) => {
+    return stands.filter((stand) => stand.name.toLowerCase().includes(query.toLowerCase()));
+  };
 
   const swapLocations = () => {
     translateY.value = withTiming(-10, { duration: 150 }, () => {
@@ -65,50 +54,31 @@ export default function Search() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const temp = from;
+    const tempId = fromId;
     setFrom(to);
+    setFromId(toId);
     setTo(temp);
-    setFilteredFrom([]);
-    setFilteredTo([]);
+    setToId(tempId);
     setActiveField(null);
-    Keyboard.dismiss();
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  const handleFromChange = (text: string) => {
-    setFrom(text);
-    setFilteredFrom(
-      allLocations.filter((item) => item.toLowerCase().includes(text.toLowerCase()) && item !== to),
-    );
-    setActiveField('from');
-  };
-
-  const handleToChange = (text: string) => {
-    setTo(text);
-    setFilteredTo(
-      allLocations.filter(
-        (item) => item.toLowerCase().includes(text.toLowerCase()) && item !== from,
-      ),
-    );
-    setActiveField('to');
-  };
-
-  const handleSuggestionPress = (item: string) => {
-    if (activeField === 'from') {
-      setFrom(item);
-      setFilteredFrom([]);
-    } else if (activeField === 'to') {
-      setTo(item);
-      setFilteredTo([]);
+  const handleSuggestionPress = (stand: Stand, field: 'from' | 'to') => {
+    if (field === 'from') {
+      setFrom(stand.name);
+      setFromId(stand._id);
+    } else {
+      setTo(stand.name);
+      setToId(stand._id);
     }
     setActiveField(null);
-    Keyboard.dismiss();
   };
 
-  const handleSearch = () => {
-    if (!from || !to) {
+  const handleSearch = async () => {
+    if (!fromId || !toId) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
@@ -116,11 +86,25 @@ export default function Search() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsSearching(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const result = await searchBuses(fromId, toId);
+      addRecentSearch({
+        id: Date.now().toString(),
+        from,
+        to,
+        fromId,
+        toId,
+      });
+      navigation.navigate('search-result', {
+        from,
+        to,
+        schedules: JSON.stringify(result.schedules),
+      });
+    } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
       setIsSearching(false);
-      navigation.navigate('search-result', { from, to });
-    }, 1500);
+    }
   };
 
   return (
@@ -135,7 +119,6 @@ export default function Search() {
       <Pressable
         style={[styles.container, { backgroundColor: theme.background }]}
         onPress={() => {
-          Keyboard.dismiss();
           setActiveField(null);
         }}
       >
@@ -155,112 +138,29 @@ export default function Search() {
 
         {/* Search Form */}
         <View style={styles.searchForm}>
-          {/* From Input */}
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
-                backgroundColor: theme.card,
-                borderColor: activeField === 'from' ? theme.tint : theme.border,
-                shadowColor: theme.text,
-              },
-              animatedStyle,
-            ]}
-          >
-            <Ionicons
-              name="location-outline"
-              size={20}
-              color={theme.tint}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              placeholder="From"
-              placeholderTextColor={theme.icon}
-              style={[styles.input, { color: theme.text }]}
-              value={from}
-              onChangeText={handleFromChange}
-              onFocus={() => setActiveField('from')}
-            />
-          </Animated.View>
+          <SearchInput
+            value={from}
+            onChangeText={(text) => setFrom(text)}
+            onFocus={() => setActiveField('from')}
+            placeholder="From"
+            iconName="location-outline"
+            active={activeField === 'from'}
+            suggestions={filteredStands(from)}
+            onSuggestionPress={(stand) => handleSuggestionPress(stand, 'from')}
+            loading={loading}
+          />
 
-          {activeField === 'from' && filteredFrom.length > 0 && (
-            <View
-              style={[
-                styles.suggestionsContainer,
-                { backgroundColor: theme.card, borderColor: theme.border },
-              ]}
-            >
-              <FlatList
-                data={filteredFrom}
-                keyExtractor={(item) => item}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={() => handleSuggestionPress(item)}
-                    style={styles.suggestionItem}
-                  >
-                    <Ionicons
-                      name="location"
-                      size={18}
-                      color={theme.tint}
-                      style={styles.suggestionIcon}
-                    />
-                    <Text style={[styles.suggestionText, { color: theme.text }]}>{item}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-
-          {/* To Input */}
-          <Animated.View
-            style={[
-              styles.inputContainer,
-              {
-                backgroundColor: theme.card,
-                borderColor: activeField === 'to' ? theme.tint : theme.border,
-                shadowColor: theme.text,
-              },
-              animatedStyle,
-            ]}
-          >
-            <Ionicons name="flag-outline" size={20} color={theme.tint} style={styles.inputIcon} />
-            <TextInput
-              placeholder="To"
-              placeholderTextColor={theme.icon}
-              style={[styles.input, { color: theme.text }]}
-              value={to}
-              onChangeText={handleToChange}
-              onFocus={() => setActiveField('to')}
-            />
-          </Animated.View>
-
-          {activeField === 'to' && filteredTo.length > 0 && (
-            <View
-              style={[
-                styles.suggestionsContainer,
-                { backgroundColor: theme.card, borderColor: theme.border },
-              ]}
-            >
-              <FlatList
-                data={filteredTo}
-                keyExtractor={(item) => item}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={() => handleSuggestionPress(item)}
-                    style={styles.suggestionItem}
-                  >
-                    <Ionicons
-                      name="flag"
-                      size={18}
-                      color={theme.tint}
-                      style={styles.suggestionIcon}
-                    />
-                    <Text style={[styles.suggestionText, { color: theme.text }]}>{item}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
+          <SearchInput
+            value={to}
+            onChangeText={(text) => setTo(text)}
+            onFocus={() => setActiveField('to')}
+            placeholder="To"
+            iconName="flag-outline"
+            active={activeField === 'to'}
+            suggestions={filteredStands(to)}
+            onSuggestionPress={(stand) => handleSuggestionPress(stand, 'to')}
+            loading={loading}
+          />
 
           {/* Swap Button */}
           <TouchableOpacity
@@ -271,6 +171,7 @@ export default function Search() {
                 backgroundColor: theme.tint,
                 shadowColor: theme.text,
               },
+              animatedStyle,
             ]}
           >
             <Ionicons name="swap-vertical" size={22} color={theme.card} />
@@ -282,11 +183,11 @@ export default function Search() {
               styles.searchButton,
               {
                 backgroundColor: theme.tint,
-                opacity: !from || !to ? 0.6 : 1,
+                opacity: !fromId || !toId ? 0.6 : 1,
               },
             ]}
             onPress={handleSearch}
-            disabled={!from || !to || isSearching}
+            disabled={!fromId || !toId || isSearching}
           >
             {isSearching ? (
               <ActivityIndicator color={theme.card} />
@@ -299,48 +200,16 @@ export default function Search() {
           </TouchableOpacity>
         </View>
 
-        {/* Recent Searches Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Searches</Text>
-
-          {recentSearches.length > 0 ? (
-            <FlatList
-              data={recentSearches}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.recentItem,
-                    { backgroundColor: theme.card, borderColor: theme.border },
-                  ]}
-                  onPress={() => {
-                    setFrom(item.from);
-                    setTo(item.to);
-                  }}
-                >
-                  <Ionicons name="time" size={18} color={theme.tint} style={styles.recentIcon} />
-                  <Text style={[styles.recentText, { color: theme.text }]}>
-                    {item.from} → {item.to}
-                  </Text>
-                  <Ionicons name="chevron-forward" size={18} color={theme.icon} />
-                </TouchableOpacity>
-              )}
-              scrollEnabled={false}
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name="search-outline"
-                size={32}
-                color={theme.icon}
-                style={styles.emptyIcon}
-              />
-              <Text style={[styles.emptyText, { color: theme.text }]}>
-                No recent searches found
-              </Text>
-            </View>
-          )}
-        </View>
+        {/* Recent Searches */}
+        <RecentSearches
+          searches={recentSearches}
+          onSearchPress={(search) => {
+            setFrom(search.from);
+            setFromId(search.fromId);
+            setTo(search.to);
+            setToId(search.toId);
+          }}
+        />
       </Pressable>
     </SafeAreaView>
   );
@@ -376,54 +245,6 @@ const styles = StyleSheet.create({
   searchForm: {
     marginBottom: 32,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  suggestionsContainer: {
-    maxHeight: 200,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  suggestionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  suggestionIcon: {
-    marginRight: 12,
-  },
-  suggestionText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
   swapButton: {
     position: 'absolute',
     right: 20,
@@ -458,44 +279,5 @@ const styles = StyleSheet.create({
   searchButtonText: {
     fontSize: 16,
     fontWeight: '600',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  recentItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 12,
-  },
-  recentIcon: {
-    marginRight: 12,
-  },
-  recentText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    backgroundColor: 'transparent',
-  },
-  emptyIcon: {
-    opacity: 0.5,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: '500',
-    opacity: 0.5,
   },
 });

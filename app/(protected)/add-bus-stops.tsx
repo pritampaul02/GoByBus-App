@@ -128,7 +128,7 @@ export default function CreateBusScreen() {
       }
     } catch (error) {
       console.log(error);
-      Alert.alert('error', 'Error message');
+      Alert.alert('error', JSON.stringify(error));
     } finally {
       setIsSubmitting(false);
     }
