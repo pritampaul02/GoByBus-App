@@ -50,7 +50,7 @@ const CustomDrawer = (props: any) => {
 
   const handleClearHistory = () => {
     clearRecentSearches();
-    navigation.closeDrawer();
+    props.navigation.closeDrawer();
     Alert.alert('Clear', '✅ Search history cleared.');
   };
 
