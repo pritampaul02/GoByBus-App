@@ -1,163 +1,136 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
-  StyleSheet,
-  Image,
-  ScrollView,
-  useWindowDimensions,
-  TouchableOpacity,
   Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
-import { useColorScheme } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { Link, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import TheamedText from '@/components/global/TheamedText';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
-import { useAuthStore } from '@/store/useAuthStore';
-import TabsIcon from '@/components/ui/TabsIcon';
-import Animated, {
-  useAnimatedScrollHandler,
-  useSharedValue,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolate,
-} from 'react-native-reanimated';
 
-const HEADER_HEIGHT = 250;
-
-type User = {
-  name?: string;
-  email?: string;
-  role?: 'driver' | 'passenger' | string;
-};
-
-const Profile = () => {
-  const theme = Colors[useColorScheme() ?? 'light'];
-  const navigation = useNavigation();
-  const { top, bottom } = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const { user } = useAuthStore() as { user: User };
-
-  const scrollY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            scrollY.value,
-            [0, HEADER_HEIGHT],
-            [0, -HEADER_HEIGHT / 2],
-            Extrapolate.CLAMP,
-          ),
-        },
-        {
-          scale: interpolate(scrollY.value, [-100, 0], [1.5, 1], Extrapolate.EXTEND),
-        },
-      ],
-      opacity: interpolate(scrollY.value, [0, HEADER_HEIGHT / 2], [1, 0], Extrapolate.CLAMP),
-    };
-  });
+const ProfileScreen = () => {
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Animated.View style={[styles.header, { height: HEADER_HEIGHT }, headerAnimatedStyle]}>
-        <Image
-          source={{
-            uri: 'https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=2070',
-          }}
-          style={styles.headerImage}
-          resizeMode="cover"
-        />
-        <View style={[styles.headerOverlay, { backgroundColor: theme.tint }]} />
-      </Animated.View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.header}>My Profile</Text>
 
-      <View style={[styles.headerContent, { paddingTop: top + 16 }]}>
-        <TouchableOpacity
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            navigation.openDrawer();
-          }}
-          style={[styles.menuButton, { backgroundColor: theme.card }]}
-        >
-          <Ionicons name="menu" size={24} color={theme.tint} />
+        <View style={styles.profileImagePlaceholder} />
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Full Name-</Text>
+          <TextInput style={styles.input} placeholder="Enter full name" />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Password-</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Enter password"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Text style={styles.showText}>{showPassword ? 'Hide' : 'Show'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Mobile Number-</Text>
+          <TextInput style={styles.input} placeholder="Enter mobile number" keyboardType="phone-pad" />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Email Id-</Text>
+          <TextInput style={styles.input} placeholder="Enter email" keyboardType="email-address" />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Address-</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Enter address"
+            multiline={true}
+            numberOfLines={4}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.floatingButton}>
+          <Ionicons name="create-outline" size={24} color="white" />
         </TouchableOpacity>
-      </View>
-
-      <Animated.ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: bottom + 20 }]}
-        showsVerticalScrollIndicator={false}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-      >
-        <Link href="/(protected)/all-buses" asChild style={{ marginTop: 200 }}>
-          <Text>Bus</Text>
-        </Link>
-      </Animated.ScrollView>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F2F2F2',
+  },
+  scrollContainer: {
+    padding: 20,
+    alignItems: 'center',
   },
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    overflow: 'hidden',
-    zIndex: 5,
+    backgroundColor: '#3399FF',
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 20,
+    marginBottom: 20,
   },
-  headerImage: {
-    flex: 1,
+  profileImagePlaceholder: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  formGroup: {
     width: '100%',
-    height: '100%',
+    marginBottom: 15,
   },
-  headerOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.3,
+  label: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 4,
   },
-  headerContent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+  input: {
+    backgroundColor: '#EAEAEA',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    zIndex: 10,
   },
-  menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  showText: {
+    marginLeft: 10,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  floatingButton: {
+    backgroundColor: '#3399FF',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginLeft: 16,
-  },
-  content: {
-    paddingTop: 180,
-    paddingHorizontal: 20,
+    alignSelf: 'flex-end',
+    marginTop: 20,
   },
 });
-
-export default Profile;
