@@ -26,6 +26,8 @@ export default function CompleteProfile() {
 
   const [name, setName] = useState<string>('');
   const [phone, setPhone] = useState<number>();
+  const [aadharNumber, setAadharNumber] = useState<string>('');
+  const [drivingLicenseNumber, setDrivingLicenseNumber] = useState<string>('');
   const [role, setRole] = useState<'passenger' | 'driver'>('passenger');
   const [street, setStreet] = useState<string>('');
   const [city, setCity] = useState<string>('');
@@ -50,6 +52,8 @@ export default function CompleteProfile() {
           phone,
           role,
           address: { street, city, state, zipcode },
+          aadharNumber,
+          drivingLicenseNumber,
         },
         token,
       });
@@ -126,6 +130,27 @@ export default function CompleteProfile() {
               ))}
             </View>
           </View>
+          {role === 'driver' && (
+            <>
+              <InputField
+                label="Aadhaar No."
+                value={aadharNumber}
+                onChangeText={setAadharNumber}
+                placeholder="123412341234"
+                keyboardType="numeric"
+                theme={theme}
+                maxLength={12}
+              />
+              <InputField
+                label="Driving Licence No."
+                value={drivingLicenseNumber}
+                onChangeText={setDrivingLicenseNumber}
+                placeholder="KA-01-2023-1234567"
+                keyboardType="default"
+                theme={theme}
+              />
+            </>
+          )}
 
           {/* Street name */}
           <InputField

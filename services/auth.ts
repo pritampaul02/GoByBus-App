@@ -6,7 +6,7 @@ export const SendEmail = async ({ email }: { email: string }) => {
   console.log(email);
 
   try {
-    const response = await axiosInstance.post('/auth/get-email', { email });
+    const response = await axiosInstance.post('auth/get-email', { email });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -18,7 +18,7 @@ export const SendEmail = async ({ email }: { email: string }) => {
 
 export const VerifyOtp = async ({ otp }: { otp: number }) => {
   try {
-    const response = await axiosInstance.post('/auth/verify-otp', { otp });
+    const response = await axiosInstance.post('auth/verify-otp', { otp });
     const { name, role } = response.data.user;
 
     if (name && role) {
@@ -38,7 +38,7 @@ export const Register = async ({ userDetails, token }: { userDetails: object; to
   console.log('✅', userDetails);
 
   try {
-    const response = await axiosInstance.post('/auth/update-profile', userDetails, {
+    const response = await axiosInstance.post('auth/update-profile', userDetails, {
       headers: { token },
     });
     console.log(response.data);

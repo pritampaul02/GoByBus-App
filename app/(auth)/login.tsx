@@ -14,7 +14,6 @@ import { router, useNavigation } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { SendEmail, VerifyOtp } from '@/services/auth';
-import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
@@ -41,9 +40,17 @@ export default function LoginScreen() {
       setLoading(true);
       const response = await SendEmail({ email });
 
+      console.log('🚀 ~ handleSendOtp ~ response:', response);
+
       if (response?.success === true) {
         setStep('otp');
         Alert.alert('Success', response.message || 'OTP sent to your email.');
+      } else {
+        // Handle cases where API doesn't throw error but response isn't successful
+        Alert.alert(
+          'Error',
+          response?.message || 'Could not send OTP. Please try a different email.',
+        );
       }
     } catch (error) {
       console.log('🚀 ~ handleSendOtp ~ error:', error);

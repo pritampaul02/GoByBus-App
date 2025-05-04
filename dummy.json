@@ -1,50 +1,126 @@
-[
-    {
-        "__v": 0,
-        "_id": "68159d4323e7c7f8dff2f906",
-        "busNumber": "B143",
-        "busType": "regular",
-        "isAC": true,
-        "isExpress": true,
-        "name": "Rudra",
-        "owner": "6804bd843efa5a892feda6b8",
-        "registrationNumber": "WB34A5656",
-        "seatCapacity": 33
+ ~ SendEmail ~ response: {
+    "config": {
+        "adapter": [
+            "xhr",
+            "http",
+            "fetch"
+        ],
+        "allowAbsoluteUrls": true,
+        "baseURL": "https://go-by-bus.vercel.app/api/",
+        "data": "{\"email\":\"pythonpritam@gmail.com\"}",
+        "env": {
+            "Blob": [Function Blob
+            ],
+            "FormData": [Function FormData
+            ]
+        },
+        "headers": [Object
+        ],
+        "maxBodyLength": -1,
+        "maxContentLength": -1,
+        "method": "post",
+        "timeout": 0,
+        "transformRequest": [
+            [Function transformRequest
+            ]
+        ],
+        "transformResponse": [
+            [Function transformResponse
+            ]
+        ],
+        "transitional": {
+            "clarifyTimeoutError": false,
+            "forcedJSONParsing": true,
+            "silentJSONParsing": true
+        },
+        "url": "auth/get-email",
+        "validateStatus": [Function validateStatus
+        ],
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN"
     },
-    {
-        "__v": 0,
-        "_id": "6815a02cced28ca54ae845fb",
-        "busNumber": "B435",
-        "busType": "volvo",
-        "isAC": false,
-        "isExpress": false,
-        "name": "Sefali",
-        "owner": "6804bd843efa5a892feda6b8",
-        "registrationNumber": "WB33A5678",
-        "seatCapacity": 45
+    "data": {
+        "error": "User validation failed: mobileNumber: Path `mobileNumber` is required.",
+        "success": false
     },
-    {
-        "__v": 0,
-        "_id": "6815ba35ef22886bfbde67fc",
-        "busNumber": "B56",
-        "busType": "regular",
-        "isAC": false,
-        "isExpress": true,
-        "name": "Subhasis",
-        "owner": "6804bd843efa5a892feda6b8",
-        "registrationNumber": "WB42AW4725 ",
-        "seatCapacity": 45
+    "headers": {
+        "cache-control": "public, max-age=0, must-revalidate",
+        "content-length": "98",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Sun, 04 May 2025 05:05:38 GMT",
+        "etag": "W/\"62-F0zqrDTIdoIe4nSwlpWchRftUk8\"",
+        "server": "Vercel",
+        "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+        "x-powered-by": "Express",
+        "x-vercel-cache": "MISS",
+        "x-vercel-id": "bom1::iad1::cg7tq-1746335138177-56122fcb79ef"
     },
-    {
-        "__v": 0,
-        "_id": "6815ba62ef22886bfbde6801",
-        "busNumber": "B65",
-        "busType": "mini",
-        "isAC": false,
-        "isExpress": true,
-        "name": "Sathi",
-        "owner": "6804bd843efa5a892feda6b8",
-        "registrationNumber": "WB42AW4726",
-        "seatCapacity": 40
-    }
-]
+    "request": {
+        "DONE": 4,
+        "HEADERS_RECEIVED": 2,
+        "LOADING": 3,
+        "OPENED": 1,
+        "UNSENT": 0,
+        "_aborted": false,
+        "_cachedResponse": undefined,
+        "_hasError": false,
+        "_headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+        },
+        "_incrementalEvents": false,
+        "_lowerCaseResponseHeaders": {
+            "cache-control": "public, max-age=0, must-revalidate",
+            "content-length": "98",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Sun, 04 May 2025 05:05:38 GMT",
+            "etag": "W/\"62-F0zqrDTIdoIe4nSwlpWchRftUk8\"",
+            "server": "Vercel",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-powered-by": "Express",
+            "x-vercel-cache": "MISS",
+            "x-vercel-id": "bom1::iad1::cg7tq-1746335138177-56122fcb79ef"
+        },
+        "_method": "POST",
+        "_perfKey": "network_XMLHttpRequest_https://go-by-bus.vercel.app/api/auth/get-email",
+        "_performanceLogger": {
+            "_closed": false,
+            "_extras": [Object
+            ],
+            "_pointExtras": [Object
+            ],
+            "_points": [Object
+            ],
+            "_timespans": [Object
+            ]
+        },
+        "_requestId": null,
+        "_response": "{\"error\":\"User validation failed: mobileNumber: Path `mobileNumber` is required.\",\"success\":false}",
+        "_responseType": "",
+        "_sent": true,
+        "_subscriptions": [],
+        "_timedOut": false,
+        "_trackingName": "unknown",
+        "_url": "https://go-by-bus.vercel.app/api/auth/get-email",
+        "readyState": 4,
+        "responseHeaders": {
+            "cache-control": "public, max-age=0, must-revalidate",
+            "content-length": "98",
+            "content-type": "application/json; charset=utf-8",
+            "date": "Sun, 04 May 2025 05:05:38 GMT",
+            "etag": "W/\"62-F0zqrDTIdoIe4nSwlpWchRftUk8\"",
+            "server": "Vercel",
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "x-powered-by": "Express",
+            "x-vercel-cache": "MISS",
+            "x-vercel-id": "bom1::iad1::cg7tq-1746335138177-56122fcb79ef"
+        },
+        "responseURL": "https://go-by-bus.vercel.app/api/auth/get-email",
+        "status": 200,
+        "timeout": 0,
+        "upload": {},
+        "withCredentials": true
+    },
+    "status": 200,
+    "statusText": undefined
+}
