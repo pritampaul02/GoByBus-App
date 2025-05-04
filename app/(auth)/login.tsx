@@ -77,7 +77,10 @@ export default function LoginScreen() {
         router.replace('/(protected)/(drawer)/(tabs)/search');
       } else {
         const { token } = user;
-        navigation.navigate('complete-profile', { email, token });
+        router.push({
+          pathname: '/(auth)/complete-profile',
+          params: { email, token }
+        });
       }
     } catch (error) {
       console.log('🚀 ~ handleVerifyOtp ~ error:', error);

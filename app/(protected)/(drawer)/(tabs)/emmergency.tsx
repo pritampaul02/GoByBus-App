@@ -8,31 +8,76 @@ import {
   Keyboard,
   SafeAreaView,
   ScrollView,
+  Linking,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import * as Haptics from 'expo-haptics';
+import { useAuthStore } from '@/store/useAuthStore';
+import axiosInstance from '@/api/axios';
 
 const Emergency = () => {
   const { top, bottom } = useSafeAreaInsets();
   const [issue, setIssue] = useState('');
   const theme = Colors[useColorScheme() ?? 'light'];
   const [isSubmitted, setIsSubmitted] = useState(false);
+  // const { user } = useAuthStore();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleCallEmergency = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await Linking.openURL('tel:1800123456');
+    } catch (error) {
+      Alert.alert('Error', 'Could not make the call. Please try again.');
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!issue.trim()) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Keyboard.dismiss();
-    console.log('Issue submitted:', issue);
-    setIsSubmitted(true);
-    setIssue('');
-    setTimeout(() => setIsSubmitted(false), 3000);
+
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.post(
+        '/feedback',
+        {
+          message: issue,
+          adminEmail: 'paulpritam20062002@gmail.com',
+          // userId: user?.id,userEmail: user?.email,userName: user?.name,timestamp: new Date().toISOString(),
+        },
+        {
+          headers: {
+            token: useAuthStore.getState().token,
+          },
+        },
+      );
+
+      if (data.success) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Alert.alert('Success', 'Issue submitted successfully');
+        setIsSubmitted(true);
+        setIssue('');
+        setTimeout(() => setIsSubmitted(false), 5000);
+      }
+
+      // console.log('Issue submitted:', {issue,userId: user?.id,userEmail: user?.email,userName: user?.name,timestamp: new Date().toISOString(),});
+    } catch (error) {
+      console.log(error);
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Error', 'Failed to submit the issue. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,14 +104,18 @@ const Emergency = () => {
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.card }]}>
-          <View style={styles.contactContainer}>
+          <TouchableOpacity style={styles.contactContainer} onPress={handleCallEmergency}>
             <Ionicons name="call-outline" size={24} color={theme.tint} />
-            <Text style={[styles.helpNumber, { color: theme.text }]}>
-              Help Number: 1800-XXX-XXXX
-            </Text>
-          </View>
+            <Text style={[styles.helpNumber, { color: theme.text }]}>Emergency: 1800-123-456</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={theme.icon}
+              style={styles.arrowIcon}
+            />
+          </TouchableOpacity>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
           <Text style={[styles.label, { color: theme.text }]}>Report an issue</Text>
           <TextInput
@@ -90,16 +139,20 @@ const Emergency = () => {
           <TouchableOpacity
             style={[
               styles.button,
-              { backgroundColor: theme.tint, opacity: issue.trim() ? 1 : 0.45 },
+              { backgroundColor: theme.tint, opacity: issue.trim() || loading ? 1 : 0.45 },
             ]}
             onPress={handleSubmit}
-            disabled={issue.trim() ? false : true}
+            disabled={!issue.trim() || loading}
           >
-            <Text style={styles.buttonText}>Submit</Text>
+            {loading ? (
+              <ActivityIndicator color={theme.card} size={'small'} />
+            ) : (
+              <Text style={styles.buttonText}>Submit</Text>
+            )}
           </TouchableOpacity>
 
           {isSubmitted && (
-            <View style={styles.successContainer}>
+            <View style={[styles.successContainer]}>
               <Ionicons name="checkmark-circle" size={20} color={theme.success} />
               <Text style={[styles.successText, { color: theme.success }]}>
                 Issue reported successfully!
@@ -173,10 +226,13 @@ const styles = StyleSheet.create({
   helpNumber: {
     fontSize: 16,
     marginLeft: 10,
+    flex: 1,
+  },
+  arrowIcon: {
+    marginLeft: 'auto',
   },
   divider: {
     height: 1,
-    backgroundColor: '#E1E3E6',
     marginVertical: 15,
   },
   label: {

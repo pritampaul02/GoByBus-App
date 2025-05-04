@@ -1,4 +1,3 @@
-// src/features/search/screens/SearchScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -107,6 +106,9 @@ export default function SearchScreen() {
     }
   };
 
+  console.log(fromId, toId);
+  
+
   return (
     <SafeAreaView
       style={{
@@ -140,7 +142,10 @@ export default function SearchScreen() {
         <View style={styles.searchForm}>
           <SearchInput
             value={from}
-            onChangeText={(text) => setFrom(text)}
+            onChangeText={(text) => {
+              setFrom(text);
+              if (!text) setFromId('');
+            }}
             onFocus={() => setActiveField('from')}
             placeholder="From"
             iconName="location-outline"
@@ -152,7 +157,10 @@ export default function SearchScreen() {
 
           <SearchInput
             value={to}
-            onChangeText={(text) => setTo(text)}
+            onChangeText={(text) => {
+              setTo(text);
+              if (!text) setToId('');
+            }}
             onFocus={() => setActiveField('to')}
             placeholder="To"
             iconName="flag-outline"
@@ -194,7 +202,9 @@ export default function SearchScreen() {
             ) : (
               <>
                 <Ionicons name="search" size={20} color={theme.card} style={styles.searchIcon} />
-                <Text style={[styles.searchButtonText, { color: theme.card }]}>Search Buses</Text>
+                <Text style={[styles.searchButtonText, { color: theme.card }]}>
+                  {!fromId || !toId ? 'Select Locations' : 'Search Buses'}
+                </Text>
               </>
             )}
           </TouchableOpacity>

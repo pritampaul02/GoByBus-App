@@ -18,7 +18,7 @@ export const SendEmail = async ({ email }: { email: string }) => {
 
 export const VerifyOtp = async ({ otp }: { otp: number }) => {
   try {
-    const response = await axiosInstance.post('auth/verify-otp', { otp });
+    const response = await axiosInstance.post('auth/verify-otp', { otp: String(otp) });
     const { name, role } = response.data.user;
 
     if (name && role) {
