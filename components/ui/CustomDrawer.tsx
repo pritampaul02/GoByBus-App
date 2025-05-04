@@ -1,5 +1,5 @@
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, Share, useColorScheme, View } from 'react-native';
 import TheamedText from '@/components/global/TheamedText';
@@ -13,6 +13,8 @@ const CustomDrawer = (props: any) => {
   const theme = Colors[useColorScheme() ?? 'light'];
   const { top, bottom } = useSafeAreaInsets();
   const { user, logout } = useAuthStore();
+
+  const navigation = useNavigation();
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -48,6 +50,8 @@ const CustomDrawer = (props: any) => {
 
   const handleClearHistory = () => {
     clearRecentSearches();
+    navigation.closeDrawer();
+    Alert.alert('Clear', '✅ Search history cleared.');
   };
 
   const handleAuthAction = () => {
