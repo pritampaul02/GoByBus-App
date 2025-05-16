@@ -45,14 +45,14 @@ export default function CompleteProfile() {
       return Alert.alert('Missing Fields', 'Please fill all required details.');
     }
     console.log(token);
-    
+
     try {
       setLoading(true);
       const response = await Register({
         userDetails: {
-          bio:"",
+          bio: '',
           name,
-          mobileNumber:phone,
+          mobileNumber: phone,
           role,
           address: { street, city, state, zipcode },
           aadharNumber,
@@ -127,7 +127,8 @@ export default function CompleteProfile() {
                   onPress={() => setRole(r as 'passenger' | 'driver')}
                 >
                   <Text style={{ color: role === r ? '#fff' : theme.text, fontWeight: '600' }}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                    {r === 'driver' ? 'Depot. Manager' : 'Passenger'}
+                    {/* {r.charAt(0).toUpperCase() + r.slice(1)} */}
                   </Text>
                 </TouchableOpacity>
               ))}

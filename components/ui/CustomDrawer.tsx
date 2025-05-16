@@ -104,7 +104,7 @@ const CustomDrawer = (props: any) => {
             elevation: 2,
           }}
         >
-          {user?.role}
+          {user?.role === 'driver' ? 'Depot. Manager' : 'Passenger'}
         </TheamedText>
         <TheamedText size={22} align="center" style={{ fontWeight: '700', marginTop: 10 }}>
           {user?.name ?? 'User Name'}

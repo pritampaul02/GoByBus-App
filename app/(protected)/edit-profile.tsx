@@ -29,7 +29,9 @@ export default function EditProfile() {
   const [name, setName] = useState<string>(user?.name || '');
   const [phone, setPhone] = useState<number>(user?.mobileNumber || 0);
   const [aadharNumber, setAadharNumber] = useState<string>(user?.aadharNumber || '');
-  const [drivingLicenseNumber, setDrivingLicenseNumber] = useState<string>(user?.drivingLicenseNumber || '');
+  const [drivingLicenseNumber, setDrivingLicenseNumber] = useState<string>(
+    user?.drivingLicenseNumber || '',
+  );
   const [role, setRole] = useState<'passenger' | 'driver'>(user?.role || 'passenger');
   const [street, setStreet] = useState<string>(user?.address?.street || '');
   const [city, setCity] = useState<string>(user?.address?.city || '');
@@ -42,7 +44,7 @@ export default function EditProfile() {
     if (!name || !phone) {
       return Alert.alert('Missing Fields', 'Please fill all required details.');
     }
-    
+
     try {
       setLoading(true);
       // Here you would typically call your API to update the user profile
@@ -56,8 +58,8 @@ export default function EditProfile() {
         drivingLicenseNumber,
         email: user?.email || '',
       };
-      
-      await Register({userDetails:updatedUser,token:useAuthStore.getState().token!});
+
+      await Register({ userDetails: updatedUser, token: useAuthStore.getState().token! });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Success', 'Profile updated successfully!');
       router.back();
@@ -97,10 +99,10 @@ export default function EditProfile() {
           />
 
           {/* Email (non-editable) */}
-          <InputField 
-            label="Email" 
-            value={user?.email || ''} 
-            editable={false} 
+          <InputField
+            label="Email"
+            value={user?.email || ''}
+            editable={false}
             theme={theme}
             placeholder="Email"
           />
@@ -131,7 +133,8 @@ export default function EditProfile() {
                   ]}
                 >
                   <Text style={{ color: role === r ? '#fff' : theme.text, fontWeight: '600' }}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                    {/* {r.charAt(0).toUpperCase() + r.slice(1)} */}
+                    {r === 'driver' ? 'Depot. Manager' : 'Passenger'}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -337,4 +340,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-}); 
+});
