@@ -85,7 +85,7 @@ export default function CreateBusScreen() {
   };
 
   const updateStop = (id: string, field: 'standName' | 'arrivalTime', value: string) => {
-    setStops(stops.map((stop) => (stop.id === id ? { ...stop, [field]: value } : stop)));
+    setStops(stops.map((stop) => (stop.id === id ? { ...stop, [field]: value.trim() } : stop)));
   };
 
   const handleSubmit = async () => {

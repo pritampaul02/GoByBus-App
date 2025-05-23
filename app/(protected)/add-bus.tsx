@@ -69,9 +69,9 @@ export default function CreateBusScreen() {
       setIsLoading(true);
 
       const response: any = await addBus({
-        name: busName,
-        busNumber: busNumber,
-        registrationNumber: busRegistrationNumber,
+        name: busName.trim(),
+        busNumber: busNumber.trim(),
+        registrationNumber: busRegistrationNumber.trim(),
         seatCapacity: Number(capacity),
         busType: busType.toLowerCase(),
         isAC: hasAC,
