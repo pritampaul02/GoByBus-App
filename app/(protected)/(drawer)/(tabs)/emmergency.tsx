@@ -51,7 +51,7 @@ const Emergency = () => {
         '/feedback',
         {
           message: issue,
-          adminEmail: 'paulpritam20062002@gmail.com',
+          adminEmail: 'gobybus2025@gmail.com',
           // userId: user?.id,userEmail: user?.email,userName: user?.name,timestamp: new Date().toISOString(),
         },
         {
